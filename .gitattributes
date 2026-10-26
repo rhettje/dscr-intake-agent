@@ -1,0 +1,15 @@
+# Store text files with LF line endings in Git, whatever OS edits them.
+# Stops Windows (CRLF) vs macOS/Linux (LF) noise in diffs.
+* text=auto eol=lf
+
+# Windows-only scripts need CRLF to run correctly
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Never touch binary files
+*.db binary
+*.sqlite binary
+*.png binary
+*.jpg binary
+*.ico binary

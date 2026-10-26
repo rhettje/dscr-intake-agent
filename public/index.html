@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSCR Loan Intake Agent - Demo Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center">
+    <div>
+      <h1 class="text-xl font-bold text-emerald-400">DSCR Loan Intake Agent</h1>
+      <p class="text-xs text-slate-400">AI-Powered Private Lending Pre-Qualification & Multi-Agent Handoff</p>
+    </div>
+    <div class="text-xs bg-slate-700 px-3 py-1 rounded-full text-emerald-300 font-mono">
+      Model: Gemini 2.5 Flash | Status: Online
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Chat Section -->
+    <div class="w-2/3 flex flex-col border-r border-slate-700 p-4">
+      <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4">
+        <div class="bg-slate-800 p-3 rounded-lg max-w-[80%] border border-slate-700">
+          <p class="text-sm font-semibold text-emerald-400">Intake Agent</p>
+          <p class="text-sm mt-1">Hello! I'm your AI Loan Intake Specialist. Are you looking to finance a rental property with a DSCR loan today? Let me know your loan amount, property value, estimated rent, and basic property details.</p>
+        </div>
+      </div>
+      <!-- Input Bar -->
+      <form id="chat-form" class="flex gap-2">
+        <input id="user-input" type="text" placeholder="Type your loan scenario or question..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-emerald-500" autocomplete="off" required>
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg text-sm font-medium transition">Send</button>
+      </form>
+    </div>
+
+    <!-- Live Telemetry / Tool Call Panel -->
+    <div class="w-1/3 flex flex-col bg-slate-950 p-4 overflow-hidden">
+      <h2 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-3">Live Tool Telemetry & Handoff</h2>
+      <div id="telemetry-box" class="flex-1 overflow-y-auto space-y-3 font-mono text-xs">
+        <div class="text-slate-500 italic">Waiting for tool executions...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    const telemetryBox = document.getElementById('telemetry-box');
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      // Append user message
+      chatBox.innerHTML += `
+        <div class="bg-slate-700 p-3 rounded-lg max-w-[80%] ml-auto">
+          <p class="text-sm font-semibold text-slate-300">Investor</p>
+          <p class="text-sm mt-1">${text}</p>
+        </div>
+      `;
+      userInput.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+
+        // Append agent reply
+        chatBox.innerHTML += `
+          <div class="bg-slate-800 p-3 rounded-lg max-w-[80%] border border-slate-700">
+            <p class="text-sm font-semibold text-emerald-400">Intake Agent</p>
+            <p class="text-sm mt-1 whitespace-pre-wrap">${data.reply}</p>
+          </div>
+        `;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Update telemetry log if tools were invoked
+        if (data.toolLog && data.toolLog.length > 0) {
+          telemetryBox.innerHTML = '';
+          data.toolLog.forEach(log => {
+            telemetryBox.innerHTML += `
+              <div class="bg-slate-900 border border-slate-800 p-2.5 rounded text-emerald-300">
+                <span class="text-amber-400 font-bold">[${log.tool}]</span> executed successfully.<br>
+                <span class="text-slate-400">Result:</span> ${JSON.stringify(log.result)}
+              </div>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

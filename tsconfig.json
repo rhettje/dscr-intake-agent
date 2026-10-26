@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    // Modern Node.js with native ES modules
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+
+    // Type safety
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Lets us `import guidelines from "../config/guidelines.json"`
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    // tsx runs the code directly, so tsc only checks types and never writes files
+    "noEmit": true
+  },
+  "include": ["src", "tests", "vitest.config.ts"]
+}

@@ -1,0 +1,7 @@
+{
+  "min_dscr": 1,
+  "preferred_dscr": 1.25,
+  "max_ltv_rental": 0.8,
+  "min_credit_score": 660,
+  "default_loan_term_years": 30
+}
